@@ -1,4 +1,4 @@
-import pygame,colors,save,os
+import pygame,colors,save,os,rooms
 from pygame.locals import *
 import os.path as fs
 
@@ -78,29 +78,19 @@ def mainMenuCallback(e):
         if menu == 1:
             print "[DEBUG] Beginning in room "+str(savegame.room)
 
-def prnt(text,x=0,y=0,c=colors.getColor("black")):
-    drawText(screen,text,c,main_font.render(text,True,c).get_rect().move(x,y),main_font,True)
-
-endrooms = (1,)
-
 def room():
     global savegame
-    if savegame.room == 0:
-        prnt("Welcome to Existance, a choose-your-own-adventure game for players like you.",2,2)
-    elif savegame.room == 1:
-        prnt("This is the end.",2,2)
+    rooms.rooms[savegame.room].drawTo(screen,savegame.name)
 
 def roomCallback(e):
     global savegame,menu,endrooms
-    if e.type == KEYDOWN and e.key == K_RETURN:
-        if savegame.room in endrooms:
+    if e.type == KEYDOWN:
+        savegame = rooms.rooms[savegame.room].keyDownHandler(savegame,e.key)
+        savegame.save()
+        if savegame.exit:
             menu = 0
             os.remove("save.txt")
-            print "[DEBUG] End reached, save wiped, restarting from main menu."
-            return
-        savegame.room += 1
-        print "[DEBUG] Going to room "+str(savegame.room)
-        savegame.save()
+            print "[DEBUG] End reached, save wiped"
 
 running = True
 
